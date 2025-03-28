@@ -3,22 +3,17 @@ import dash
 from dash import dcc, html, Input, Output
 import plotly.express as px
 
-# Load the dataset
 df = pd.read_csv('world_cup_matches.csv')
 
-# Preprocess winner counts
 winner_counts = df['Winners'].value_counts().reset_index()
 winner_counts.columns = ['Country', 'Wins']
 
-# List of unique years and countries
 years = sorted(df['Year'].unique())
 countries = sorted(winner_counts['Country'].unique())
 
-# Initialize the Dash app
 app = dash.Dash(__name__)
 server = app.server
 
-# Layout
 app.layout = html.Div([
     html.H1("FIFA World Cup Winners Dashboard", style={'textAlign': 'center'}),
     html.Div([
@@ -48,7 +43,6 @@ app.layout = html.Div([
 
 ], style={'backgroundColor': 'white', 'padding': '40px'})
 
-# Choropleth map callback
 @app.callback(
     Output('map-graph', 'figure'),
     Input('country-dropdown', 'value')
@@ -58,20 +52,22 @@ def update_map(selected_country):
         winner_counts,
         locations='Country',
         locationmode='country names',
-        color='Country',  # Each country gets a unique color
+        color='Country',
         hover_name='Country',
-        hover_data={'Wins': True, 'Country': False},  # Show Wins on hover
+        hover_data={'Wins': True, 'Country': False},
         title='World Cup Winning Countries',
         color_discrete_sequence=px.colors.qualitative.Set3
     )
     fig.update_layout(
+        geo=dict(bgcolor='white'),
         paper_bgcolor='white',
         plot_bgcolor='white',
-        coloraxis_showscale=False  # Hide scale bar (not useful for categories)
+        font=dict(color='black'),
+        margin=dict(l=0, r=0, t=40, b=0),
+        coloraxis_showscale=False
     )
     return fig
 
-# Country selection callback
 @app.callback(
     Output('country-output', 'children'),
     Input('country-dropdown', 'value')
@@ -82,7 +78,6 @@ def show_country_wins(country):
     wins = winner_counts[winner_counts['Country'] == country]['Wins'].values[0]
     return f"{country} has won the World Cup {wins} time(s)."
 
-# Year selection callback
 @app.callback(
     Output('year-output', 'children'),
     Input('year-dropdown', 'value')
@@ -93,6 +88,5 @@ def show_year_result(year):
     row = df[df['Year'] == year].iloc[0]
     return f"In {year}, {row['Winners']} won against {row['Runners-up']}."
 
-# Run the app
 if __name__ == '__main__':
     app.run(debug=True, port=8051)
