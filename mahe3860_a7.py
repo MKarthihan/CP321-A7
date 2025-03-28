@@ -16,6 +16,7 @@ countries = sorted(winner_counts['Country'].unique())
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
+server = app.server
 
 # Layout
 app.layout = html.Div([
